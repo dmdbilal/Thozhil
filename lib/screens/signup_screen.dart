@@ -1,7 +1,11 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:country_state_city_pro/country_state_city_pro.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:http/http.dart' as http;
+import 'package:thozhil_flutter_app/config.dart';
+import 'package:thozhil_flutter_app/screens/login_screen.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
@@ -13,17 +17,14 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   late TextEditingController _nameController;
   late TextEditingController _dateController;
-  late TextEditingController _genderController;
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
   late TextEditingController _addressController;
   late TextEditingController _passwordController;
-  late TextEditingController _confirmPasswordController;
   late TextEditingController _countryController;
   late TextEditingController _stateController;
   late TextEditingController _cityController;
   late TextEditingController _pincodeController;
-  late TextEditingController _degreeController;
   late TextEditingController _yearofpassingController;
   late TextEditingController _experienceController;
   late TextEditingController _collegeNameController;
@@ -46,12 +47,30 @@ class _SignUpScreenState extends State<SignUpScreen> {
   late PlatformFile resume;
   String resumeName = "";
 
+  // Connection with server
+  Future<bool> registerUser(String name, String email, String password) async {
+    var regBody = {
+      "name": name,
+      "email": email,
+      "password": password
+    };
+
+    var response = await http.post(
+      Uri.parse(registerUrl),
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode(regBody)
+    );
+
+    var res = jsonDecode(response.body);
+
+    return res['status'];
+  }
+
   @override
   void initState() {
     super.initState();
     _dateController = TextEditingController();
     _nameController = TextEditingController();
-    _genderController = TextEditingController();
     _emailController = TextEditingController();
     _phoneController = TextEditingController();
     _addressController = TextEditingController();
@@ -59,9 +78,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
     _stateController = TextEditingController();
     _cityController = TextEditingController();
     _passwordController = TextEditingController();
-    _confirmPasswordController = TextEditingController();
     _pincodeController = TextEditingController();
-    _degreeController = TextEditingController();
     _yearofpassingController = TextEditingController();
     _experienceController = TextEditingController();
     _collegeNameController = TextEditingController();
@@ -123,8 +140,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   fontSize: 13, color: Colors.white70)),
                           const SizedBox(height: 20),
                           ElevatedButton(
-                              onPressed: () {
-                                if (_formKey.currentState!.validate()) {}
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  if (await registerUser(_nameController.text, _emailController.text, _passwordController.text)) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const LoginScreen())
+                                    );
+                                  } else {
+                                    print('Error');
+                                  }
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
@@ -240,6 +266,29 @@ class _SignUpScreenState extends State<SignUpScreen> {
           ),
           const SizedBox(height: 20),
 
+          /** Password */
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(8.0),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: TextFormField(
+              controller: _passwordController,
+              validator: (value) {
+                if (value == "") {
+                  return "Enter your password";
+                }
+                return null;
+              },
+              decoration: const InputDecoration(
+                hintText: 'Enter password',
+                labelText: 'Password',
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
           /** Mobile */
           Container(
             decoration: BoxDecoration(
@@ -250,12 +299,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: TextFormField(
               keyboardType: TextInputType.phone,
               controller: _phoneController,
-              validator: (value) {
-                if (value == "") {
-                  return "Enter mobile number";
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == "") {
+              //     return "Enter mobile number";
+              //   }
+              //   return null;
+              // },
               decoration: const InputDecoration(
                 hintText: 'Enter your mobile number',
                 labelText: 'Mobile Number',
@@ -275,12 +324,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               keyboardType: TextInputType.multiline,
               controller: _addressController,
               maxLines: null,
-              validator: (value) {
-                if (value == "") {
-                  return "Enter your address";
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == "") {
+              //     return "Enter your address";
+              //   }
+              //   return null;
+              // },
               decoration: const InputDecoration(
                 hintText: 'Enter address',
                 labelText: 'Address',
@@ -316,12 +365,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: TextFormField(
               keyboardType: TextInputType.number,
               controller: _pincodeController,
-              validator: (value) {
-                if (value == "") {
-                  return "Enter pincode";
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == "") {
+              //     return "Enter pincode";
+              //   }
+              //   return null;
+              // },
               decoration: const InputDecoration(
                 hintText: 'Enter pincode',
                 labelText: 'Pincode',
@@ -364,12 +413,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: TextFormField(
               keyboardType: TextInputType.phone,
               controller: _yearofpassingController,
-              validator: (value) {
-                if (value == "") {
-                  return "Enter Year of passing";
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == "") {
+              //     return "Enter Year of passing";
+              //   }
+              //   return null;
+              // },
               decoration: const InputDecoration(
                 hintText: 'Enter year of passing',
                 labelText: 'Year of passing',
@@ -389,12 +438,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
               keyboardType: TextInputType.multiline,
               controller: _experienceController,
               maxLines: null,
-              validator: (value) {
-                if (value == "") {
-                  return "Enter your experience";
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == "") {
+              //     return "Enter your experience";
+              //   }
+              //   return null;
+              // },
               decoration: const InputDecoration(
                 hintText: 'Enter experience',
                 labelText: 'Experience',
@@ -412,12 +461,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextFormField(
               controller: _collegeNameController,
-              validator: (value) {
-                if (value == "") {
-                  return "Enter college name";
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == "") {
+              //     return "Enter college name";
+              //   }
+              //   return null;
+              // },
               decoration: const InputDecoration(
                 hintText: 'Enter college name',
                 labelText: 'College Name',
@@ -435,12 +484,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: TextFormField(
               controller: _interestsController,
-              validator: (value) {
-                if (value == "") {
-                  return "Enter area of interests";
-                }
-                return null;
-              },
+              // validator: (value) {
+              //   if (value == "") {
+              //     return "Enter area of interests";
+              //   }
+              //   return null;
+              // },
               decoration: const InputDecoration(
                 hintText: 'Enter your interests',
                 labelText: 'Area of interest',

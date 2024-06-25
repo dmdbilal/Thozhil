@@ -1,7 +1,12 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:thozhil_flutter_app/config.dart';
 import 'package:thozhil_flutter_app/screens/dashboard_screen.dart';
 import 'package:thozhil_flutter_app/screens/signup_screen.dart';
+import 'package:http/http.dart' as http;
+import 'package:thozhil_flutter_app/util/util_functions.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -13,12 +18,33 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   late final TextEditingController _emailController;
   late final TextEditingController _passwordController;
+  final _emailFocusNode = FocusNode();
+  final _passFocusNode = FocusNode();
+  final _formKey = GlobalKey<FormState>();
+  final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
   @override
   void initState() {
     super.initState();
     _emailController = TextEditingController();
     _passwordController = TextEditingController();
+  }
+
+  Future<dynamic> loginUser(String email, String password) async {
+    var regBody = {
+      "email": email,
+      "password": password
+    };
+
+    var response = await http.post(
+        Uri.parse(loginUrl),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode(regBody)
+    );
+
+    var res = jsonDecode(response.body);
+
+    return res;
   }
 
   @override
@@ -30,6 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
     var image = Image(image: assetsImage, fit: BoxFit.cover, height: 50);
 
     return MaterialApp(
+      scaffoldMessengerKey: scaffoldMessengerKey,
       home: Scaffold(
         body: Center(
           child: Column(children: [
@@ -63,57 +90,102 @@ class _LoginScreenState extends State<LoginScreen> {
                                 color: Colors.white,
                                 fontSize: 30,
                                 fontWeight: FontWeight.bold)),
-                        Column(
-                          children: [
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: TextField(
-                                controller: _emailController,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Email',
+                        Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: TextFormField(
+                                  validator: (value) {
+                                    if (value == "") {
+                                      return "Enter your email !";
+                                    }
+                                    return null;
+                                  },
+                                  controller: _emailController,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Email',
+                                  ),
+                                  focusNode: _emailFocusNode,
+                                  onFieldSubmitted: (_) {
+                                    FocusScope.of(context).requestFocus(_passFocusNode);
+                                  },
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            Container(
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(8.0),
-                              ),
-                              padding:
-                                  const EdgeInsets.symmetric(horizontal: 16.0),
-                              child: TextField(
-                                obscureText: true,
-                                controller: _passwordController,
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  hintText: 'Password',
+                              const SizedBox(height: 20),
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(8.0),
+                                ),
+                                padding:
+                                const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: TextFormField(
+                                  validator: (value) {
+                                    if (value == "") {
+                                      return "Enter your password !";
+                                    }
+                                    return null;
+                                  },
+                                  focusNode: _passFocusNode,
+                                  obscureText: true,
+                                  controller: _passwordController,
+                                  decoration: const InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: 'Password',
+                                  ),
+
                                 ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            Container(
-                                alignment: Alignment.bottomRight,
-                                child: GestureDetector(
-                                  onTap: () {},
-                                  child: const Text("Forgot password ?",
-                                      style: TextStyle(color: Colors.white70)),
-                                ))
-                          ],
+                              const SizedBox(height: 20),
+
+                              Container(
+                                  alignment: Alignment.bottomRight,
+                                  child: GestureDetector(
+                                    onTap: () {},
+                                    child: const Text("Forgot password ?",
+                                        style: TextStyle(color: Colors.white70)),
+                                  ))
+                            ],
+                          ),
                         ),
                         ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) =>
+                            onPressed: () async {
+                              if (_formKey.currentState!.validate()) {
+                                var response = await loginUser(_emailController.text, _passwordController.text);
+                                if (response['status']) {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
                                           const DashboardScreen()));
+                                } else {
+                                  scaffoldMessengerKey.currentState?.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          response['message'],
+                                          style: dmSansStyle(
+                                              15,
+                                              color: Colors.blue,
+                                              fontWeight: FontWeight.bold
+                                          ),
+                                          textAlign: TextAlign.center
+                                      ),
+                                      backgroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(30)
+                                      )
+                                    ),
+                                  );
+                                }
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                                 backgroundColor: Colors.white,
