@@ -1,8 +1,11 @@
 const firebase = require("firebase/compat/app");
 require("firebase/compat/storage");
+require('dotenv').config();
+
+const apiKey = process.env.FIREBASE_API_KEY;
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBqmc6LDIhaYuU6wlcNK9o9QZeuezFerfI",
+  apiKey: apiKey,
   authDomain: "thozhil-mobile-app.firebaseapp.com",
   projectId: "thozhil-mobile-app",
   storageBucket: "thozhil-mobile-app.appspot.com",
