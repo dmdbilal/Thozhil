@@ -78,8 +78,17 @@ This project is a Flutter application developed during our internship. The appli
 - MongoDB
 
 ## Contributors
-- **Bilal** - Frontend Developer ([GitHub Profile](https://github.com/yourusername))
-- **[Friend's Name]** - Backend Developer ([GitHub Profile](https://github.com/friendsusername))
+<div style="display: flex; justify-content: center;">
+  <!-- Contributor 1 -->
+  <a href="https://github.com/dmdbilal" style="margin: 100px; text-align: center; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+    <img src="https://github.com/dmdbilal/Thozhil/assets/91405690/2b7b73ee-4004-49b0-899e-3620bd32db5f" alt="Mohamed Bilal D" style="width: 80px; height: 80px; border-radius: 50%;">
+  </a>
+
+  <!-- Contributor 2 -->
+  <a href="https://github.com/adithya1306" style="margin: 100px; text-align: center; text-decoration: none; color: inherit; display: flex; flex-direction: column; align-items: center;">
+    <img src="https://github.com/dmdbilal/Thozhil/assets/91405690/bdbda483-23e7-415b-9a15-7c53e9671868" alt="Adithya B" style="width: 80px; height: 80px; border-radius: 50%;">
+  </a>
+</div>
 
 ## Acknowledgements
 - Special thanks to our internship mentor [Mentor's Name] for their guidance and support.
